@@ -1,0 +1,176 @@
+.facilities-page {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.facilities-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.facilities-header h1 {
+  margin: 0;
+  color: #333;
+}
+
+.add-facility-btn {
+  background-color: #2196f3;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.add-facility-btn:hover {
+  background-color: #1976d2;
+}
+
+.facilities-filters {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.search-input,
+.filter-select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.search-input {
+  width: 300px;
+}
+
+.filter-select {
+  min-width: 150px;
+}
+
+.facilities-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  justify-items: center;
+}
+
+.facility-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  width: 100%;
+  max-width: 350px;
+}
+
+.facility-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.facility-header h3 {
+  margin: 0;
+  color: #333;
+}
+
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-badge.available {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-badge.under-maintenance {
+  background-color: #fff3e0;
+  color: #ef6c00;
+}
+
+.status-badge.booked {
+  background-color: #e3f2fd;
+  color: #1565c0;
+}
+
+.facility-info {
+  margin-bottom: 20px;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.info-item .label {
+  color: #666;
+}
+
+.facility-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.facility-actions button {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  color: white;
+}
+
+.edit-btn {
+  background-color: #2196f3;
+}
+
+.schedule-btn {
+  background-color: #ff9800;
+}
+
+.view-btn {
+  background-color: #4caf50;
+}
+
+.facility-actions button:hover {
+  opacity: 0.9;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .facilities-page {
+    padding: 15px;
+  }
+  
+  .facilities-header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .facilities-filters {
+    justify-content: center;
+  }
+  
+  .search-input {
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  .facilities-grid {
+    grid-template-columns: 1fr;
+  }
+}

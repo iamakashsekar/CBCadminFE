@@ -1,0 +1,110 @@
+.rooms-container {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.rooms-container h1 {
+  color: #333;
+  margin-bottom: 20px;
+  font-size: 2rem;
+}
+
+.table-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.room-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.room-table th,
+.room-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.room-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #495057;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.room-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.room-number {
+  font-weight: 600;
+  color: #007bff;
+}
+
+.guest-name {
+  font-weight: 500;
+  color: #333;
+}
+
+.amount {
+  font-weight: 600;
+  color: #28a745;
+}
+
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-badge.green {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-badge.red {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.status-badge.orange {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-badge.blue {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+.status-badge.gray {
+  background-color: #e2e3e5;
+  color: #383d41;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .rooms-container {
+    padding: 10px;
+  }
+  
+  .room-table th,
+  .room-table td {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+  
+  .table-container {
+    overflow-x: auto;
+  }
+}
