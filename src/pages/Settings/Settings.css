@@ -3,7 +3,7 @@
   padding: 24px;
   background-color: #f8f9fa;
   min-height: 100vh;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 /* Settings Header */
@@ -27,7 +27,7 @@
 }
 
 .add-admin-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #029ddd 0%, #00c6ff 100%);
   color: white;
   padding: 12px 24px;
   border: none;
@@ -70,7 +70,7 @@
 .search-input:focus,
 .filter-select:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #00c6ff;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
@@ -149,7 +149,7 @@
 .admin-avatar {
   width: 48px;
   height: 48px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #029ddd 0%, #00c6ff 100%);
   color: white;
   border-radius: 50%;
   display: flex;
@@ -224,7 +224,7 @@
 }
 
 .all-permissions {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #029ddd 0%, #00c6ff 100%);
   color: white;
   padding: 4px 12px;
   border-radius: 16px;
@@ -284,7 +284,8 @@
 }
 
 .edit-btn {
-  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  background: linear-gradient(135deg, #029ddd 0%, #00c6ff 100%);
+  border: none;
   color: white;
   box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
 }
@@ -336,8 +337,12 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .modal {
@@ -354,11 +359,11 @@
 }
 
 @keyframes slideUp {
-  from { 
+  from {
     opacity: 0;
     transform: translateY(30px);
   }
-  to { 
+  to {
     opacity: 1;
     transform: translateY(0);
   }
@@ -399,7 +404,7 @@
 .form-group input:focus,
 .form-group select:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #00c6ff;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
@@ -430,7 +435,7 @@
 
 .permission-checkbox:hover {
   background: #f8f9fa;
-  border-color: #667eea;
+  border-color: #00c6ff;
 }
 
 .permission-checkbox input[type="checkbox"] {
@@ -487,9 +492,10 @@
 }
 
 .modal-actions button.primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #029ddd 0%, #00c6ff 100%);
+  border: none;
   color: white;
-  border-color: #667eea;
+  border-color: #00c6ff;
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
@@ -526,7 +532,7 @@
   .admins-table {
     overflow-x: auto;
   }
-  
+
   .admins-table table {
     min-width: 1000px;
   }
@@ -536,47 +542,47 @@
   .settings-page {
     padding: 16px;
   }
-  
+
   .settings-header {
     flex-direction: column;
     gap: 16px;
     text-align: center;
     padding: 20px;
   }
-  
+
   .settings-header h1 {
     font-size: 24px;
   }
-  
+
   .admin-filters {
     flex-direction: column;
     align-items: stretch;
     padding: 16px;
   }
-  
+
   .search-input {
     width: 100%;
   }
-  
+
   .modal {
     padding: 24px;
     margin: 20px;
     width: calc(100% - 40px);
   }
-  
+
   .modal-actions {
     flex-direction: column;
   }
-  
+
   .modal-actions button {
     width: 100%;
   }
-  
+
   .action-buttons {
     flex-direction: column;
     gap: 6px;
   }
-  
+
   .edit-btn,
   .delete-btn {
     width: 100%;
@@ -589,50 +595,50 @@
   .settings-page {
     padding: 12px;
   }
-  
+
   .settings-header {
     padding: 16px;
   }
-  
+
   .settings-header h1 {
     font-size: 20px;
   }
-  
+
   .add-admin-btn {
     padding: 10px 20px;
     font-size: 13px;
   }
-  
+
   .admin-filters {
     gap: 12px;
     padding: 12px;
   }
-  
+
   .modal {
     padding: 20px;
     margin: 10px;
     width: calc(100% - 20px);
   }
-  
+
   .permissions-grid {
     max-height: 250px;
     padding: 12px;
   }
-  
+
   .permission-checkbox {
     padding: 10px;
   }
-  
+
   .admin-avatar {
     width: 40px;
     height: 40px;
     font-size: 16px;
   }
-  
+
   .admin-name {
     font-size: 13px;
   }
-  
+
   .admin-email {
     font-size: 11px;
   }

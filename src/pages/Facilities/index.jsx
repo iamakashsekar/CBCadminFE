@@ -1,33 +1,15 @@
-import React, { useState } from 'react';
-import './Facilities.css';
+import React, { useState, useEffect } from "react";
+import "./Facilities.css";
+import { useGetAllFacilitiesQuery } from "../../api/facilityApi";
 
 const Facilities = () => {
-  const [facilities] = useState([
-    { 
-      id: 1, 
-      name: 'Tennis Court 1',
-      type: 'Sports',
-      status: 'Available',
-      capacity: '4 players',
-      maintenanceDate: '2024-03-15'
-    },
-    { 
-      id: 2, 
-      name: 'Swimming Pool',
-      type: 'Recreation',
-      status: 'Under Maintenance',
-      capacity: '50 people',
-      maintenanceDate: '2024-02-20'
-    },
-    { 
-      id: 3, 
-      name: 'Function Hall A',
-      type: 'Event Space',
-      status: 'Available',
-      capacity: '200 people',
-      maintenanceDate: '2024-04-01'
-    },
-  ]);
+  const { data: facilities, error, isLoading } = useGetAllFacilitiesQuery();
+  console.log("facilities", facilities);
+
+  if (isLoading) return <p>Loading facilities...</p>;
+  if (error) return <p>Error fetching facilities</p>;
+
+  console.log(import.meta.env.VITE_API_BASE_URL);
 
   return (
     <div className="facilities-page">
@@ -37,9 +19,9 @@ const Facilities = () => {
       </div>
 
       <div className="facilities-filters">
-        <input 
-          type="text" 
-          placeholder="Search facilities..." 
+        <input
+          type="text"
+          placeholder="Search facilities..."
           className="search-input"
         />
         <select className="filter-select">
@@ -57,26 +39,43 @@ const Facilities = () => {
       </div>
 
       <div className="facilities-grid">
-        {facilities.map(facility => (
-          <div key={facility.id} className="facility-card">
+        {facilities?.facilites?.map((facility) => (
+          <div key={facility?.id} className="facility-card">
             <div className="facility-header">
-              <h3>{facility.name}</h3>
-              <span className={`status-badge ${facility.status.toLowerCase().replace(' ', '-')}`}>
-                {facility.status}
+              <h3>{facility?.name}</h3>
+              <span
+              // className={`status-badge ${facility?.status
+              //   .toLowerCase()
+              //   .replace(" ", "-")}`}
+              >
+                {facility?.status}
               </span>
             </div>
+            <img
+              src={facility?.img_src}
+              alt={facility?.name}
+              className="facility-image"
+            />
             <div className="facility-info">
               <div className="info-item">
-                <span className="label">Type:</span>
-                <span>{facility.type}</span>
+                <span className="label">Availability Status:</span>
+                <span>{facility?.availability_status}</span>
               </div>
               <div className="info-item">
                 <span className="label">Capacity:</span>
-                <span>{facility.capacity}</span>
+                <span>{facility?.capacity}</span>
               </div>
               <div className="info-item">
-                <span className="label">Next Maintenance:</span>
-                <span>{facility.maintenanceDate}</span>
+                <span className="label">Slots:</span>
+                <span>{facility?.slot}</span>
+              </div>
+              <div className="info-item">
+                <span className="label">Unit:</span>
+                <span>{facility?.unit}</span>
+              </div>
+              <div className="info-item">
+                <span className="label">Is Free Access:</span>
+                <span>{facility?.is_free_access === "0" ? "No" : "Yes"}</span>
               </div>
             </div>
             <div className="facility-actions">

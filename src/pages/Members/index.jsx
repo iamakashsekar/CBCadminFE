@@ -3,62 +3,75 @@ import QRCode from 'qrcode';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { format, addDays } from 'date-fns';
+import { useGetAllUsersQuery } from '../../api/userApi';
 import './Members.css';
 
 const Members = () => {
-  const [members, setMembers] = useState([
-    { 
-      id: 1, 
-      name: 'John Doe', 
-      email: 'john@example.com',
-      membershipId: 'CBC001', 
-      status: 'Active', 
-      type: 'Individual', 
-      joinDate: '2024-01-15',
-      membershipValidUntil: '2025-01-15',
-      stripeCustomerId: 'cus_123456789',
-      lastPayment: '2024-01-15',
-      nextPayment: '2025-01-15',
-      totalSpent: 299.99,
-      isBanned: false,
-      banStartDate: null,
-      banEndDate: null
-    },
-    { 
-      id: 2, 
-      name: 'Jane Smith', 
-      email: 'jane@example.com',
-      membershipId: 'CBC002', 
-      status: 'Active', 
-      type: 'Family', 
-      joinDate: '2024-02-01',
-      membershipValidUntil: '2025-02-01',
-      stripeCustomerId: 'cus_987654321',
-      lastPayment: '2024-02-01',
-      nextPayment: '2025-02-01',
-      totalSpent: 499.99,
-      isBanned: false,
-      banStartDate: null,
-      banEndDate: null
-    },
-    { 
-      id: 3, 
-      name: 'Mike Johnson', 
-      email: 'mike@example.com',
-      membershipId: 'CBC003', 
-      status: 'Banned', 
-      type: 'Corporate', 
-      joinDate: '2023-12-10',
-      membershipValidUntil: '2024-12-10',
-      stripeCustomerId: 'cus_456789123',
-      lastPayment: '2023-12-10',
-      nextPayment: '2024-12-10',
-      totalSpent: 799.99,
-      isBanned: true,
-      banStartDate: '2024-06-01',
-      banEndDate: '2024-08-01'
-    },
-  ]);
+  // Get users data from API
+  const {
+    data: usersData,
+    isLoading: usersLoading,
+    error: usersError,
+    refetch: refetchUsers
+  } = useGetAllUsersQuery();
+
+  // Transform API data to match the expected format
+  const [members, setMembers] = useState([]);
+
+  useEffect(() => {
+    console.log('API Users Data:', usersData);
+    if (usersData?.users) {
+      console.log("usersData", usersData.users);
+      const transformedMembers = usersData.users.map((user, index) => ({
+        id: user.id || index + 1,
+        name: user.fullName || user.full_name || 'N/A',
+        email: user.email || 'N/A',
+        membershipId: user.membershipCode || `CBC${String(user.id || index + 1).padStart(3, '0')}`,
+        status: user.paymentStatus === 'paid' ? 'Active' : 'Inactive',
+        type: user.membershipType || 'Individual',
+        joinDate: user.created_at ? format(new Date(user.created_at), 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd'),
+        membershipValidUntil: user.packageDuration ? 
+          format(addDays(new Date(user.created_at), user.packageDuration * 365), 'yyyy-MM-dd') : 
+          format(addDays(new Date(user.created_at), 365), 'yyyy-MM-dd'),
+        stripeCustomerId: user.stripeCustomerId || 'N/A',
+        lastPayment: user.created_at ? format(new Date(user.created_at), 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd'),
+        nextPayment: user.packageDuration ? 
+          format(addDays(new Date(user.created_at), user.packageDuration * 365), 'yyyy-MM-dd') : 
+          format(addDays(new Date(), 30), 'yyyy-MM-dd'),
+        totalSpent: user.packagePrice || 0,
+        isBanned: false, // Default to false since no ban field in API
+        banStartDate: null,
+        banEndDate: null,
+        // Additional fields from API
+        phone: user.phone || 'N/A',
+        dob: user.dob ? format(new Date(user.dob), 'yyyy-MM-dd') : 'N/A',
+        maritalStatus: user.maritalStatus || user.marital_status || 'N/A',
+        occupation: user.occupation || 'N/A',
+        packageLabel: user.packageLabel || 'N/A',
+        packageType: user.packageType || 'N/A',
+        packagePrice: user.packagePrice || 0,
+        paymentStatus: user.paymentStatus || 'N/A',
+        isVerified: user.is_verified === 1,
+        referralCode: user.referral_code || 'N/A',
+        interests: user.interests ? JSON.parse(user.interests) : [],
+        interestGroups: user.interest_groups || null,
+        stripeSessionId: user.stripeSessionId || 'N/A',
+        stripeSubscriptionId: user.stripeSubscriptionId || 'N/A',
+        updatedAt: user.updatedAt ? format(new Date(user.updatedAt), 'yyyy-MM-dd HH:mm') : 'N/A',
+        // Keep original created_at for sorting
+        created_at: user.created_at
+      }));
+      
+      // Sort by created_at (latest first)
+      const sortedMembers = transformedMembers.sort((a, b) => {
+        if (!a.created_at || !b.created_at) return 0;
+        return new Date(b.created_at) - new Date(a.created_at);
+      });
+      
+      console.log('Transformed Members:', sortedMembers);
+      setMembers(sortedMembers);
+    }
+  }, [usersData]);
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [showBanModal, setShowBanModal] = useState(false);
@@ -69,6 +82,7 @@ const Members = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
+  const [packageFilter, setPackageFilter] = useState('');
   const [banStartDate, setBanStartDate] = useState(new Date());
   const [banEndDate, setBanEndDate] = useState(addDays(new Date(), 7));
   const [selectedProductId, setSelectedProductId] = useState('');
@@ -107,11 +121,13 @@ const Members = () => {
   const filteredMembers = members.filter(member => {
     const matchesSearch = member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          member.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         member.membershipId.toLowerCase().includes(searchTerm.toLowerCase());
+                         member.membershipId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         member.phone.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = !statusFilter || member.status.toLowerCase() === statusFilter.toLowerCase();
     const matchesType = !typeFilter || member.type.toLowerCase() === typeFilter.toLowerCase();
+    const matchesPackage = !packageFilter || member.packageType.toLowerCase() === packageFilter.toLowerCase();
     
-    return matchesSearch && matchesStatus && matchesType;
+    return matchesSearch && matchesStatus && matchesType && matchesPackage;
   });
 
   // Generate membership ID
@@ -269,22 +285,58 @@ const Members = () => {
     return member.status;
   };
 
+  // Show loading state
+  if (usersLoading) {
+    return (
+      <div className="members-page">
+        <div className="loading-container">
+          <h2>Loading members...</h2>
+          <div className="loading-spinner"></div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (usersError) {
+    return (
+      <div className="members-page">
+        <div className="error-container">
+          <h2>Error loading members</h2>
+          <p>{usersError.message || 'Failed to fetch members data'}</p>
+          <button onClick={() => refetchUsers()} className="retry-btn">
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="members-page">
       <div className="members-header">
         <h1>Members Management</h1>
-        <button 
-          className="add-member-btn"
-          onClick={() => setShowAddModal(true)}
-        >
-          Add New Member
-        </button>
+        <div className="header-actions">
+          <button 
+            className="refresh-btn"
+            onClick={() => refetchUsers()}
+            disabled={usersLoading}
+          >
+            {usersLoading ? 'Refreshing...' : 'Refresh'}
+          </button>
+          <button 
+            className="add-member-btn"
+            onClick={() => setShowAddModal(true)}
+          >
+            Add New Member
+          </button>
+        </div>
       </div>
 
       <div className="members-filters">
         <input 
           type="text" 
-          placeholder="Search members by name, email, or ID..." 
+          placeholder="Search by name, email, ID, or phone..." 
           className="search-input"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
@@ -297,7 +349,6 @@ const Members = () => {
           <option value="">All Status</option>
           <option value="active">Active</option>
           <option value="inactive">Inactive</option>
-          <option value="banned">Banned</option>
           <option value="expired">Expired</option>
         </select>
         <select 
@@ -310,6 +361,15 @@ const Members = () => {
           <option value="family">Family</option>
           <option value="corporate">Corporate</option>
         </select>
+        <select 
+          className="filter-select"
+          value={packageFilter}
+          onChange={(e) => setPackageFilter(e.target.value)}
+        >
+          <option value="">All Packages</option>
+          <option value="yearly">Yearly</option>
+          <option value="monthly">Monthly</option>
+        </select>
       </div>
 
       <div className="members-table">
@@ -319,14 +379,14 @@ const Members = () => {
               <th>Membership ID</th>
               <th>Name</th>
               <th>Email</th>
+              <th>Phone</th>
               <th>Type</th>
+              <th>Package</th>
               <th>Status</th>
               <th>Join Date</th>
               <th>Valid Until</th>
-              <th>Stripe Customer ID</th>
-              <th>Last Payment</th>
-              <th>Next Payment</th>
-              <th>Total Spent</th>
+              <th>Price</th>
+              <th>Verified</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -336,7 +396,14 @@ const Members = () => {
                 <td>{member.membershipId}</td>
                 <td>{member.name}</td>
                 <td>{member.email}</td>
+                <td>{member.phone}</td>
                 <td>{member.type}</td>
+                <td>
+                  <div className="package-info">
+                    <span className="package-label">{member.packageLabel}</span>
+                    <span className="package-type">({member.packageType})</span>
+                  </div>
+                </td>
                 <td>
                   <span className={`status-badge ${getMembershipStatus(member).toLowerCase()}`}>
                     {getMembershipStatus(member)}
@@ -344,10 +411,12 @@ const Members = () => {
                 </td>
                 <td>{member.joinDate}</td>
                 <td>{member.membershipValidUntil}</td>
-                <td className="stripe-id">{member.stripeCustomerId}</td>
-                <td>{member.lastPayment}</td>
-                <td>{member.nextPayment}</td>
-                <td>${member.totalSpent.toFixed(2)}</td>
+                <td>${member.packagePrice.toFixed(2)}</td>
+                <td>
+                  <span className={`verification-badge ${member.isVerified ? 'verified' : 'unverified'}`}>
+                    {member.isVerified ? '✓' : '✗'}
+                  </span>
+                </td>
                 <td>
                   <div className="action-buttons">
                     <button 

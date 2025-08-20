@@ -1,257 +1,271 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from "react";
+import { useGetAllUsersQuery } from "../../api/userApi";
+import { useGetAllBookingsQuery } from "../../api/bookingApi";
 import {
-  LineChart,
-  Line,
   AreaChart,
   Area,
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
-  ResponsiveContainer
-} from 'recharts';
-import { format, subDays, subWeeks, subMonths, subYears, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear } from 'date-fns';
-import './Dashboard.css';
+  ResponsiveContainer,
+} from "recharts";
+import {
+  format,
+  startOfDay,
+  startOfWeek,
+  startOfMonth,
+  startOfYear,
+} from "date-fns";
+import "./Dashboard.css";
+import { FaUsers, FaCalendar } from "react-icons/fa";
 
 const Dashboard = () => {
-  const [timeRange, setTimeRange] = useState('monthly');
-  const [selectedMetric, setSelectedMetric] = useState('users');
+  const [timeRange, setTimeRange] = useState("monthly");
+  const [selectedMetric, setSelectedMetric] = useState("users");
 
-  // Dummy data for users
-  const userData = {
-    daily: generateDailyData(30, 'users'),
-    weekly: generateWeeklyData(12, 'users'),
-    monthly: generateMonthlyData(12, 'users'),
-    yearly: generateYearlyData(5, 'users')
+  const {
+    data: users,
+    isLoading: usersLoading,
+    error: usersError,
+  } = useGetAllUsersQuery();
+  const {
+    data: bookings,
+    isLoading: bookingsLoading,
+    error: bookingsError,
+  } = useGetAllBookingsQuery();
+
+  console.log("users", users);
+  console.log("bookings", bookings);
+
+  // Helper: group data by period
+  const groupByTime = (items, dateKey, range) => {
+    const grouped = {};
+
+    items?.forEach((item) => {
+      const rawDate = new Date(item[dateKey]);
+      let bucket;
+
+      if (range === "daily") {
+        bucket = format(startOfDay(rawDate), "MMM dd");
+      } else if (range === "weekly") {
+        // Show week range (e.g., "May 18 - May 24")
+        const weekStart = startOfWeek(rawDate);
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekStart.getDate() + 6);
+        bucket = `${format(weekStart, "MMM dd")} - ${format(weekEnd, "MMM dd")}`;
+      } else if (range === "monthly") {
+        bucket = format(startOfMonth(rawDate), "MMM yyyy");
+      } else if (range === "yearly") {
+        bucket = format(startOfYear(rawDate), "yyyy");
+      } else if (range === "quarterly") {
+        // Add quarterly grouping
+        const month = rawDate.getMonth();
+        const quarter = Math.floor(month / 3) + 1;
+        const year = rawDate.getFullYear();
+        bucket = `Q${quarter} ${year}`;
+      }
+
+      grouped[bucket] = (grouped[bucket] || 0) + 1;
+    });
+
+    return Object.entries(grouped).map(([key, value]) => ({
+      [range === "daily"
+        ? "date"
+        : range === "weekly"
+        ? "week"
+        : range === "monthly"
+        ? "month"
+        : range === "quarterly"
+        ? "quarter"
+        : "year"]: key,
+      value,
+    }));
   };
 
-  // Dummy data for bookings
-  const bookingData = {
-    daily: generateDailyData(30, 'bookings'),
-    weekly: generateWeeklyData(12, 'bookings'),
-    monthly: generateMonthlyData(12, 'bookings'),
-    yearly: generateYearlyData(5, 'bookings')
+  // Calculate total based on selected time range
+  const getTotalForTimeRange = (items, dateKey, range) => {
+    if (!items || items.length === 0) return 0;
+    
+    const now = new Date();
+    let cutoffDate;
+    
+    if (range === "daily") {
+      // Last 24 hours
+      cutoffDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    } else if (range === "weekly") {
+      // Last 7 days
+      cutoffDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    } else if (range === "monthly") {
+      // Last 30 days
+      cutoffDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    } else if (range === "quarterly") {
+      // Last 90 days
+      cutoffDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+    } else if (range === "yearly") {
+      // Last 365 days
+      cutoffDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+    }
+    
+    return items.filter(item => new Date(item[dateKey]) >= cutoffDate).length;
   };
 
-  // Generate dummy data functions
-  function generateDailyData(days, type) {
-    const data = [];
-    for (let i = days - 1; i >= 0; i--) {
-      const date = subDays(new Date(), i);
-      const baseValue = type === 'users' ? 50 : 25;
-      const randomFactor = 0.3; // 30% variation
-      const value = Math.floor(baseValue + (Math.random() - 0.5) * baseValue * randomFactor);
-      
-      data.push({
-        date: format(date, 'MMM dd'),
-        value: value,
-        fullDate: date
-      });
+  // Prepare chart data
+  const chartData = useMemo(() => {
+    if (selectedMetric === "users") {
+      return groupByTime(users?.users || [], "created_at", timeRange);
+    } else {
+      return groupByTime(bookings?.bookings || [], "booking_date", timeRange);
     }
-    return data;
-  }
+  }, [users, bookings, selectedMetric, timeRange]);
 
-  function generateWeeklyData(weeks, type) {
-    const data = [];
-    for (let i = weeks - 1; i >= 0; i--) {
-      const date = subWeeks(new Date(), i);
-      const baseValue = type === 'users' ? 350 : 175;
-      const randomFactor = 0.4; // 40% variation
-      const value = Math.floor(baseValue + (Math.random() - 0.5) * baseValue * randomFactor);
-      
-      data.push({
-        week: `Week ${format(date, 'MMM dd')}`,
-        value: value,
-        fullDate: date
-      });
+  // Calculate current total based on time range
+  const currentTotal = useMemo(() => {
+    if (selectedMetric === "users") {
+      return getTotalForTimeRange(users?.users || [], "created_at", timeRange);
+    } else {
+      return getTotalForTimeRange(bookings?.bookings || [], "booking_date", timeRange);
     }
-    return data;
-  }
-
-  function generateMonthlyData(months, type) {
-    const data = [];
-    for (let i = months - 1; i >= 0; i--) {
-      const date = subMonths(new Date(), i);
-      const baseValue = type === 'users' ? 1500 : 750;
-      const randomFactor = 0.5; // 50% variation
-      const value = Math.floor(baseValue + (Math.random() - 0.5) * baseValue * randomFactor);
-      
-      data.push({
-        month: format(date, 'MMM yyyy'),
-        value: value,
-        fullDate: date
-      });
-    }
-    return data;
-  }
-
-  function generateYearlyData(years, type) {
-    const data = [];
-    for (let i = years - 1; i >= 0; i--) {
-      const date = subYears(new Date(), i);
-      const baseValue = type === 'users' ? 18000 : 9000;
-      const randomFactor = 0.6; // 60% variation
-      const value = Math.floor(baseValue + (Math.random() - 0.5) * baseValue * randomFactor);
-      
-      data.push({
-        year: format(date, 'yyyy'),
-        value: value,
-        fullDate: date
-      });
-    }
-    return data;
-  }
-
-  // Calculate summary statistics
-  const getCurrentData = () => {
-    const data = selectedMetric === 'users' ? userData[timeRange] : bookingData[timeRange];
-    return data;
-  };
-
-  const getSummaryStats = () => {
-    const data = getCurrentData();
-    const values = data.map(item => item.value);
-    const total = values.reduce((sum, val) => sum + val, 0);
-    const average = Math.round(total / values.length);
-    const max = Math.max(...values);
-    const min = Math.min(...values);
-    const change = values.length > 1 ? ((values[values.length - 1] - values[values.length - 2]) / values[values.length - 2] * 100).toFixed(1) : 0;
-
-    return { total, average, max, min, change };
-  };
-
-  const summaryStats = getSummaryStats();
+  }, [users, bookings, selectedMetric, timeRange]);
 
   // Chart colors
   const chartColors = {
-    users: {
-      primary: '#667eea',
-      secondary: '#764ba2',
-      gradient: 'url(#userGradient)'
-    },
-    bookings: {
-      primary: '#f093fb',
-      secondary: '#f5576c',
-      gradient: 'url(#bookingGradient)'
-    }
+    users: { primary: "#029ddd" },
+    bookings: { primary: "#029ddd" },
   };
+  if (usersLoading || bookingsLoading) {
+    return <div className="loading">Loading...</div>;
+  }
 
- 
-
+  if (usersError || bookingsError) {
+    return (
+      <div className="error">
+        Error: {usersError?.message || bookingsError?.message}
+      </div>
+    );
+  }
   return (
     <div className="dashboard">
-      {/* Header Section */}
+      {/* Header */}
       <div className="dashboard-header">
         <div className="header-content">
-          <h1>CBC Club Dashboard</h1>
-          <p>Welcome back! Here's what's happening with your club today.</p>
+          <h1 style={{ color: "white", fontSize: "32px", fontWeight: "600" }}>
+            CBC Club Dashboard
+          </h1>
+          <p style={{ color: "white" }}>
+            Welcome back! Here's what's happening with your club today.
+          </p>
         </div>
         <div className="header-actions">
           <div className="metric-selector">
-            <button 
-              className={`metric-btn ${selectedMetric === 'users' ? 'active' : ''}`}
-              onClick={() => setSelectedMetric('users')}
+            <button
+              className={`metric-btn ${
+                selectedMetric === "users" ? "active" : ""
+              }`}
+              onClick={() => setSelectedMetric("users")}
             >
-              👥 Users
+              <FaUsers /> Users
             </button>
-            <button 
-              className={`metric-btn ${selectedMetric === 'bookings' ? 'active' : ''}`}
-              onClick={() => setSelectedMetric('bookings')}
+            <button
+              className={`metric-btn ${
+                selectedMetric === "bookings" ? "active" : ""
+              }`}
+              onClick={() => setSelectedMetric("bookings")}
             >
-              📅 Bookings
+              <FaCalendar /> Bookings
             </button>
           </div>
         </div>
       </div>
 
-      {/* Time Range Selector */}
+      {/* Time Range */}
       <div className="time-range-selector">
-        <button 
-          className={`time-btn ${timeRange === 'daily' ? 'active' : ''}`}
-          onClick={() => setTimeRange('daily')}
-        >
-          Daily
-        </button>
-        <button 
-          className={`time-btn ${timeRange === 'weekly' ? 'active' : ''}`}
-          onClick={() => setTimeRange('weekly')}
-        >
-          Weekly
-        </button>
-        <button 
-          className={`time-btn ${timeRange === 'monthly' ? 'active' : ''}`}
-          onClick={() => setTimeRange('monthly')}
-        >
-          Monthly
-        </button>
-        <button 
-          className={`time-btn ${timeRange === 'yearly' ? 'active' : ''}`}
-          onClick={() => setTimeRange('yearly')}
-        >
-          Yearly
-        </button>
+        {["daily", "weekly", "monthly", "quarterly", "yearly"].map((range) => (
+          <button
+            key={range}
+            className={`time-btn ${timeRange === range ? "active" : ""}`}
+            onClick={() => setTimeRange(range)}
+          >
+            {range.charAt(0).toUpperCase() + range.slice(1)}
+          </button>
+        ))}
       </div>
 
-      {/* Summary Statistics */}
+      {/* Summary */}
       <div className="summary-stats">
         <div className="stat-card primary">
-          <div className="stat-icon">📊</div>
-          <div className="stat-content">
-            <h3>Total {selectedMetric === 'users' ? 'Users' : 'Bookings'}</h3>
-            <div className="stat-value">{summaryStats.total.toLocaleString()}</div>
-           
+          <div className="stat-icon">
+            {selectedMetric === "users" ? <FaUsers /> : <FaCalendar />}
           </div>
-        
-      
-        </div>
-      </div>
-
-      {/* Main Chart */}
-      <div className="chart-section">
-        <div className="chart-header">
-          <h2>{selectedMetric === 'users' ? 'User' : 'Booking'} Growth - {timeRange.charAt(0).toUpperCase() + timeRange.slice(1)}</h2>
-          <div className="chart-legend">
-            <div className="legend-item">
-              <div className="legend-color" style={{ backgroundColor: chartColors[selectedMetric].primary }}></div>
-              <span>{selectedMetric === 'users' ? 'Users' : 'Bookings'}</span>
+          <div className="stat-content">
+            <h3>{timeRange.charAt(0).toUpperCase() + timeRange.slice(1)} {selectedMetric === "users" ? "Users" : "Bookings"}</h3>
+            <div className="stat-value">
+              {currentTotal}
+            </div>
+            <div className="stat-subtitle">
+              {timeRange === "daily" && "Last 24 hours"}
+              {timeRange === "weekly" && "Last 7 days"}
+              {timeRange === "monthly" && "Last 30 days"}
+              {timeRange === "quarterly" && "Last 90 days"}
+              {timeRange === "yearly" && "Last 365 days"}
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Chart */}
+      <div className="chart-section">
+        <div className="chart-header">
+          <h2>
+            {selectedMetric === "users" ? "User" : "Booking"} Growth -{" "}
+            {timeRange.charAt(0).toUpperCase() + timeRange.slice(1)}
+          </h2>
+        </div>
         <div className="chart-container">
           <ResponsiveContainer width="100%" height={400}>
-            <AreaChart data={getCurrentData()}>
+            <AreaChart data={chartData}>
               <defs>
-                <linearGradient id={`${selectedMetric}Gradient`} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={chartColors[selectedMetric].primary} stopOpacity={0.8}/>
-                  <stop offset="95%" stopColor={chartColors[selectedMetric].primary} stopOpacity={0.1}/>
+                <linearGradient
+                  id={`${selectedMetric}Gradient`}
+                  x1="0"
+                  y1="0"
+                  x2="0"
+                  y2="1"
+                >
+                  <stop
+                    offset="5%"
+                    stopColor={chartColors[selectedMetric].primary}
+                    stopOpacity={0.8}
+                  />
+                  <stop
+                    offset="95%"
+                    stopColor={chartColors[selectedMetric].primary}
+                    stopOpacity={0.1}
+                  />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis 
-                dataKey={timeRange === 'daily' ? 'date' : timeRange === 'weekly' ? 'week' : timeRange === 'monthly' ? 'month' : 'year'} 
+              <XAxis
+                dataKey={
+                  timeRange === "daily"
+                    ? "date"
+                    : timeRange === "weekly"
+                    ? "week"
+                    : timeRange === "monthly"
+                    ? "month"
+                    : timeRange === "quarterly"
+                    ? "quarter"
+                    : "year"
+                }
                 stroke="#666"
                 fontSize={12}
               />
               <YAxis stroke="#666" fontSize={12} />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: '#fff', 
-                  border: '1px solid #ddd',
-                  borderRadius: '8px',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-                }}
-                labelStyle={{ fontWeight: 'bold', color: '#333' }}
-              />
-              <Area 
-                type="monotone" 
-                dataKey="value" 
-                stroke={chartColors[selectedMetric].primary} 
+              <Tooltip />
+              <Area
+                type="monotone"
+                dataKey="value"
+                stroke={chartColors[selectedMetric].primary}
                 strokeWidth={3}
                 fill={`url(#${selectedMetric}Gradient)`}
                 fillOpacity={0.6}
@@ -260,10 +274,6 @@ const Dashboard = () => {
           </ResponsiveContainer>
         </div>
       </div>
-
-     
-
-    
     </div>
   );
 };

@@ -3,7 +3,7 @@
   padding: 24px;
   background-color: #f8f9fa;
   min-height: 100vh;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 /* Slideshow Header */
@@ -57,7 +57,8 @@
 }
 
 .add-slide-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #029ddd 0%, #00c6ff 100%);
+  border: none;
   color: white;
   padding: 12px 24px;
   border: none;
@@ -125,7 +126,7 @@
 }
 
 .requirement-value {
-  color: #667eea;
+  color: #00c6ff;
   font-weight: 600;
   font-size: 14px;
 }
@@ -156,7 +157,7 @@
 .search-input:focus,
 .filter-select:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #00c6ff;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
@@ -213,7 +214,7 @@
 }
 
 .slide-card.drag-over {
-  border-color: #667eea;
+  border-color: #00c6ff;
   border-width: 2px;
 }
 
@@ -222,7 +223,7 @@
   position: absolute;
   top: 16px;
   left: 16px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #029ddd 0%, #00c6ff 100%);
   color: white;
   width: 32px;
   height: 32px;
@@ -289,7 +290,8 @@
 }
 
 .edit-btn {
-  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  background: linear-gradient(135deg, #029ddd 0%, #00c6ff 100%);
+  border: none;
   color: white;
   box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
 }
@@ -397,7 +399,7 @@
 }
 
 .add-first-slide-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #029ddd 0%, #00c6ff 100%);
   color: white;
   padding: 12px 24px;
   border: none;
@@ -431,8 +433,12 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .modal {
@@ -449,11 +455,11 @@
 }
 
 @keyframes slideUp {
-  from { 
+  from {
     opacity: 0;
     transform: translateY(30px);
   }
-  to { 
+  to {
     opacity: 1;
     transform: translateY(0);
   }
@@ -497,7 +503,7 @@
 .form-group textarea:focus,
 .form-group select:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #00c6ff;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
@@ -517,7 +523,7 @@
 }
 
 .image-upload-area:hover {
-  border-color: #667eea;
+  border-color: #00c6ff;
   background: rgba(102, 126, 234, 0.05);
 }
 
@@ -621,9 +627,9 @@
 }
 
 .modal-actions button.primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #029ddd 0%, #00c6ff 100%);
   color: white;
-  border-color: #667eea;
+  border-color: #00c6ff;
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
@@ -666,58 +672,58 @@
   .slideshow-page {
     padding: 16px;
   }
-  
+
   .slideshow-header {
     flex-direction: column;
     gap: 16px;
     text-align: center;
     padding: 20px;
   }
-  
+
   .slideshow-header h1 {
     font-size: 24px;
   }
-  
+
   .header-actions {
     flex-direction: column;
     width: 100%;
   }
-  
+
   .preview-btn,
   .add-slide-btn {
     width: 100%;
   }
-  
+
   .requirements-grid {
     grid-template-columns: 1fr;
     gap: 12px;
   }
-  
+
   .slideshow-filters {
     flex-direction: column;
     align-items: stretch;
     padding: 16px;
   }
-  
+
   .search-input {
     width: 100%;
   }
-  
+
   .slides-grid {
     grid-template-columns: 1fr;
     gap: 16px;
   }
-  
+
   .modal {
     padding: 24px;
     margin: 20px;
     width: calc(100% - 40px);
   }
-  
+
   .modal-actions {
     flex-direction: column;
   }
-  
+
   .modal-actions button {
     width: 100%;
   }
@@ -727,46 +733,46 @@
   .slideshow-page {
     padding: 12px;
   }
-  
+
   .slideshow-header {
     padding: 16px;
   }
-  
+
   .slideshow-header h1 {
     font-size: 20px;
   }
-  
+
   .requirements-info {
     padding: 16px;
   }
-  
+
   .requirements-info h3 {
     font-size: 16px;
   }
-  
+
   .slideshow-filters {
     gap: 12px;
     padding: 12px;
   }
-  
+
   .modal {
     padding: 20px;
     margin: 10px;
     width: calc(100% - 20px);
   }
-  
+
   .slide-content {
     padding: 16px;
   }
-  
+
   .slide-title {
     font-size: 16px;
   }
-  
+
   .slide-description {
     font-size: 13px;
   }
-  
+
   .slide-meta {
     flex-direction: column;
     gap: 8px;
@@ -782,7 +788,7 @@
 }
 
 .slide-card.drag-over {
-  border-color: #667eea;
+  border-color: #00c6ff;
   border-width: 3px;
   background: rgba(102, 126, 234, 0.05);
 }

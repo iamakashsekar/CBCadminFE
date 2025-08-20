@@ -1,8 +1,8 @@
 .sidebar {
   width: 250px;
   height: 100vh;
-  background-color: #1a1a1a;
-  color: white;
+  background-color: #fff;
+  color: #029ddd;
   transition: width 0.3s ease;
   position: fixed;
   left: 0;
@@ -18,7 +18,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid #333;
+ 
 }
 
 .sidebar-header h2 {
@@ -26,12 +26,14 @@
   font-size: 1.2rem;
   white-space: nowrap;
   overflow: hidden;
+  font-size: 1.5rem;
+  font-weight: 700;
 }
 
 .sidebar-header button {
   background: none;
   border: none;
-  color: white;
+  color: #029ddd;
   cursor: pointer;
   padding: 5px;
 }
@@ -45,22 +47,28 @@
   align-items: center;
   padding: 12px 20px;
   color: white;
-  text-decoration: none;
   transition: background-color 0.2s;
 }
 
 .nav-item:hover {
-  background-color: #333;
+  background-color: #029ddd;
+  color: #fff;
 }
 
 .nav-icon {
   margin-right: 15px;
   font-size: 1.2rem;
+  color: gray;
 }
 
 .nav-label {
   white-space: nowrap;
   overflow: hidden;
+  color: gray;
+}
+.nav-item:hover .nav-icon,
+.nav-item:hover .nav-label {
+  color: #fff;
 }
 
 .collapsed .nav-label {
