@@ -852,7 +852,7 @@ const Events = () => {
             <div className="form-group">
               <label>Event Content (Rich Text Editor)</label>
               <Editor
-                apiKey="your-tinymce-api-key"
+                apiKey={process.env.REACT_APP_TINYMCE_API_KEY}
                 value={selectedEvent.content}
                 onEditorChange={(content) => handleContentChange(content, true)}
                 init={{
